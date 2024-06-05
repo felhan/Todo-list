@@ -3,18 +3,39 @@ const taskList = document.querySelector('.tasks__list');
 const taskInput = document.querySelector('.tasks__input');
 const buttonClear = document.querySelector('.header__link');
 
-buttonElement.addEventListener("click", function(evt) {	
-    evt.preventDefault();
+function createTask(taskInput) {
     const taskValue = taskInput.value;
 
+    // Проверка на пустую строку
     if (taskValue.trim() === '') {
         alert('Пожалуйста, введите название задачи.');
         return;
     }
 
+    // Проверка на дубликат задачи
+    const taskTitles = Array.from(document.querySelectorAll('.task__title'));
+    for (let i = 0; i < taskTitles.length; i++) {
+        if (taskTitles[i].textContent === taskValue) {
+            alert('Такая задача уже есть в списке.');
+            return;
+        }
+    }
+
     addTask(taskValue);
     taskInput.value = '';
     updateLocalStorage();
+}
+
+buttonElement.addEventListener("click", function (evt) {
+    evt.preventDefault();
+    createTask(taskInput);
+});
+
+taskInput.addEventListener("keydown", function (evt) {
+    if (evt.key === 'Enter') {
+        evt.preventDefault();
+        createTask(taskInput);
+    }
 });
 
 function addTask(taskValue) {
@@ -32,7 +53,7 @@ function addTask(taskValue) {
     removeButton.textContent = '×';
     task.appendChild(removeButton);
 
-    removeButton.addEventListener('click', function(evt) {
+    removeButton.addEventListener('click', function (evt) {
         evt.preventDefault();
         task.remove();
         updateLocalStorage();
@@ -41,12 +62,11 @@ function addTask(taskValue) {
     taskList.appendChild(task);
 }
 
-buttonClear.addEventListener('click', function(evt) {
+buttonClear.addEventListener('click', function (evt) {
     evt.preventDefault();
     taskList.innerHTML = '';
     localStorage.removeItem('tasks');
 });
-
 
 function updateLocalStorage() {
     const tasks = Array.from(document.querySelectorAll('.task__title')).map(title => title.textContent);
